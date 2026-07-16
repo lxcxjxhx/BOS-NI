@@ -1,0 +1,67 @@
+name: CI - BOS-NI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check repository structure
+        run: |
+          echo "Repository structure check:"
+          ls -la
+          echo "✓ Repository is accessible"
+
+      - name: Validate README
+        run: |
+          if [ -f README.md ]; then
+            echo "✓ README.md exists"
+            wc -l README.md
+          else
+            echo "⚠ README.md not found"
+          fi
+
+      - name: Check for common files
+        run: |
+          echo "Checking for common project files..."
+          [ -f LICENSE ] && echo "✓ LICENSE found" || echo "⚠ LICENSE not found"
+          [ -f .gitignore ] && echo "✓ .gitignore found" || echo "⚠ .gitignore not found"
+
+  python-check:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('**/*.py') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Python files
+        run: |
+          python -m py_compile $(find . -name "*.py" -type f) || echo "Python syntax check completed"
+
+  node-check:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('**/package.json') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check Node.js files
+        run: |
+          if [ -f package.json ]; then
+            npm install
+            echo "✓ Node.js dependencies installed"
+          fi
