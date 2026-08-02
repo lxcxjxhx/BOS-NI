@@ -235,10 +235,6 @@ BOS-NI 并不是一个"大而全"的 AI 平台，它更像是：
 
 ---
 
-## 📄 License
-
-MIT License
-
 ---
 
 ## ⚠ Disclaimer
